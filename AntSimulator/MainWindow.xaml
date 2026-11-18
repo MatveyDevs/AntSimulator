@@ -1,12 +1,314 @@
 ﻿<Window x:Class="AntSimulator.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AntSimulator"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        xmlns:controls="clr-namespace:AntSimulator.Controls"
+        Title="Симулятор муравья"
+        Width="1200"
+        Height="800"
+        MinWidth="900"
+        MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F2F5">
 
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="360"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ИГРОВОЕ ПОЛЕ -->
+        <Border Grid.Column="0"
+                Background="White"
+                CornerRadius="8"
+                Padding="12"
+                Margin="0,0,12,0">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="Игровое поле"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Margin="0,0,0,12"/>
+
+                <Border Grid.Row="1"
+                        BorderBrush="#B0B0B0"
+                        BorderThickness="1"
+                        Background="White"
+                        ClipToBounds="True">
+
+                    <controls:FieldControl
+                        x:Name="FieldView"
+                        Field="{Binding Field}"
+                        AntX="{Binding AntX}"
+                        AntY="{Binding AntY}"
+                        AntDirection="{Binding AntDirection}"
+                        RenderVersion="{Binding RenderVersion}"
+                        Focusable="True"/>
+                </Border>
+
+                <TextBlock Grid.Row="2"
+                           Text="Щёлкните по клетке, чтобы изменить её цвет."
+                           Foreground="Gray"
+                           Margin="0,10,0,0"/>
+            </Grid>
+        </Border>
+
+        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+        <Border Grid.Column="1"
+                Background="White"
+                CornerRadius="8"
+                Padding="14">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+
+                    <TextBlock Text="Управление"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Margin="0,0,0,16"/>
+
+                    <!-- РАЗМЕР ПОЛЯ -->
+                    <TextBlock Text="Размер поля"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0"
+                                    Margin="0,0,5,0">
+                            <TextBlock Text="Ширина"/>
+                            <TextBox Text="{Binding FieldWidth,
+                                UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="5"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="5,0,0,0">
+                            <TextBlock Text="Высота"/>
+                            <TextBox Text="{Binding FieldHeight,
+                                UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="5"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Button Content="Создать поле"
+                            Command="{Binding CreateFieldCommand}"
+                            Padding="8"
+                            Margin="0,0,0,6"/>
+
+                    <Button Content="Очистить поле"
+                            Command="{Binding ClearFieldCommand}"
+                            Padding="8"
+                            Margin="0,0,0,6"/>
+
+                    <!-- СЛУЧАЙНАЯ РАСКРАСКА -->
+                    <Separator Margin="0,12"/>
+
+                    <TextBlock Text="Случайная раскраска"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+                    <TextBlock Text="{Binding BlackProbability,
+                        StringFormat=Чёрные клетки: {0}%}"/>
+
+                    <Slider Minimum="0"
+                            Maximum="100"
+                            Value="{Binding BlackProbability}"
+                            TickFrequency="10"
+                            IsSnapToTickEnabled="False"/>
+
+                    <Button Content="Случайно раскрасить"
+                            Command="{Binding RandomizeFieldCommand}"
+                            Padding="8"
+                            Margin="0,6,0,0"/>
+
+                    <!-- НАЧАЛЬНОЕ ПОЛОЖЕНИЕ -->
+                    <Separator Margin="0,12"/>
+
+                    <TextBlock Text="Начальное положение муравья"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0"
+                                    Margin="0,0,5,0">
+                            <TextBlock Text="X"/>
+                            <TextBox Text="{Binding StartX,
+                                UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="5"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="5,0,0,0">
+                            <TextBlock Text="Y"/>
+                            <TextBox Text="{Binding StartY,
+                                UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="5"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Направление"/>
+                    <ComboBox ItemsSource="{Binding DirectionOptions}"
+                              SelectedItem="{Binding StartDirection}"
+                              Padding="5"
+                              Margin="0,3,0,0"/>
+
+                    <!-- ПРАВИЛА -->
+                    <Separator Margin="0,12"/>
+
+                    <TextBlock Text="Правила поведения"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+                    <GroupBox Header="Если клетка белая"
+                              Padding="8"
+                              Margin="0,0,0,8">
+
+                        <StackPanel>
+                            <TextBlock Text="Движение"
+           Margin="0,8,0,0"/>
+
+                            <ComboBox ItemsSource="{Binding MovementOptions}"
+          SelectedItem="{Binding WhiteMovement}"
+          Padding="5"
+          Margin="0,3,0,0"/>
+                            <TextBlock Text="Поворот"/>
+                            <ComboBox ItemsSource="{Binding TurnOptions}"
+                                      SelectedItem="{Binding WhiteTurn}"
+                                      Padding="5"
+                                      Margin="0,3,0,8"/>
+
+                            <TextBlock Text="Изменение цвета"/>
+                            <ComboBox ItemsSource="{Binding ColorOptions}"
+                                      SelectedItem="{Binding WhiteColor}"
+                                      Padding="5"
+                                      Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Если клетка чёрная"
+                              Padding="8">
+
+                        <StackPanel>
+                            <TextBlock Text="Движение"
+           Margin="0,8,0,0"/>
+
+                            <ComboBox ItemsSource="{Binding MovementOptions}"
+          SelectedItem="{Binding BlackMovement}"
+          Padding="5"
+          Margin="0,3,0,0"/>
+                            <TextBlock Text="Поворот"/>
+                            <ComboBox ItemsSource="{Binding TurnOptions}"
+                                      SelectedItem="{Binding BlackTurn}"
+                                      Padding="5"
+                                      Margin="0,3,0,8"/>
+
+                            <TextBlock Text="Изменение цвета"/>
+                            <ComboBox ItemsSource="{Binding ColorOptions}"
+                                      SelectedItem="{Binding BlackColor}"
+                                      Padding="5"
+                                      Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- УПРАВЛЕНИЕ СИМУЛЯЦИЕЙ -->
+                    <Separator Margin="0,12"/>
+
+                    <TextBlock Text="Симуляция"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Content="Старт"
+                                Command="{Binding StartCommand}"
+                                Padding="8"
+                                Margin="0,0,4,6"/>
+
+                        <Button Grid.Column="1"
+                                Content="Пауза"
+                                Command="{Binding PauseCommand}"
+                                Padding="8"
+                                Margin="4,0,0,6"/>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Content="Стоп"
+                                Command="{Binding StopCommand}"
+                                Padding="8"
+                                Margin="0,0,4,6"/>
+
+                        <Button Grid.Column="1"
+                                Content="Один шаг"
+                                Command="{Binding StepCommand}"
+                                Padding="8"
+                                Margin="4,0,0,6"/>
+                    </Grid>
+
+                    <Button Content="Сброс"
+                            Command="{Binding ResetCommand}"
+                            Padding="8"
+                            Margin="0,0,0,8"/>
+
+                    <!-- СКОРОСТЬ -->
+                    <TextBlock Text="{Binding SpeedMilliseconds,
+                        StringFormat=Интервал: {0} мс}"/>
+
+                    <Slider Minimum="20"
+                            Maximum="1000"
+                            Value="{Binding SpeedMilliseconds}"
+                            IsSnapToTickEnabled="False"/>
+
+                    <!-- СЧЁТЧИК И СТАТУС -->
+                    <Separator Margin="0,12"/>
+
+                    <TextBlock Text="{Binding Steps,
+                        StringFormat=Количество шагов: {0}}"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+
+                    <Border Background="#F0F2F5"
+                            CornerRadius="5"
+                            Padding="8">
+
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </Window>
